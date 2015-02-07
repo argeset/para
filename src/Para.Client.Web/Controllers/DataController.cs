@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Web.Mvc;
 
 using Para.Server.Contract;
@@ -48,10 +49,10 @@ namespace Para.Client.Web.Controllers
         }
 
         [HttpGet]
-        public JsonResult SadeceDeger(string hedef = "USD", string tur = "efektif", string gun = "")
+        public string SadeceDeger(string hedef = "USD", string tur = "efektif", string gun = "")
         {
             Currency target;
-            if (!Enum.TryParse(hedef, out target)) return Json("hatalı para birimi hedefi > " + hedef, JsonRequestBehavior.AllowGet);
+            if (!Enum.TryParse(hedef, out target)) return "hatalı para birimi hedefi > " + hedef;
 
             var argument = new GetValueArgument { Target = target };
             switch (tur)
@@ -63,13 +64,13 @@ namespace Para.Client.Web.Controllers
                     argument.Type = CurrencyValueType.Forex;
                     break;
                 default:
-                    return Json("hatalı tür > " + tur, JsonRequestBehavior.AllowGet);
+                    return "hatalı tür > " + tur;
             }
 
             SetDay(gun, argument);
             var response = _paraService.GetValue(argument);
 
-            return Json(response.Value, JsonRequestBehavior.AllowGet);
+            return response.Value.ToString(CultureInfo.InvariantCulture);
         }
 
         [HttpGet]
