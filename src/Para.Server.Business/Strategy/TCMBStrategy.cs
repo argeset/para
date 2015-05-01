@@ -85,6 +85,14 @@ namespace Para.Server.Business.Strategy
                     var forex = Convert.ToDecimal(valsForex[i].InnerText, CultureInfo.InvariantCulture);
                     var forexBuying = Convert.ToDecimal(valsForexBuying[i].InnerText, CultureInfo.InvariantCulture);
 
+                    if (code == Currency.JPY.ToString())
+                    {
+                        banknote = banknote / 100;
+                        banknoteBuying = banknoteBuying / 100;
+                        forex = forex / 100;
+                        forexBuying = forexBuying / 100;
+                    }
+
                     SaveValueDbWork(day, code, banknote, CurrencyValueType.Banknote);
                     SaveValueDbWork(day, code, banknoteBuying, CurrencyValueType.BanknoteBuying);
                     SaveValueDbWork(day, code, forex, CurrencyValueType.Forex);
@@ -109,7 +117,7 @@ namespace Para.Server.Business.Strategy
                     cmd.Connection = conn;
                     cmd.CommandType = CommandType.Text;
                     cmd.CommandText = @"IF NOT EXISTS (SELECT * 
-			                                           FROM [dbo].[CurrencyValue] 
+			                                           FROM [CurrencyValue] 
                                                        WHERE [Day] = @day
 					                                         AND [Source] = @source
 					                                         AND [Target] = @target
@@ -117,7 +125,7 @@ namespace Para.Server.Business.Strategy
 					                                         AND [ValueType] = @valueType
 					                                         AND [Value] = @value)
                                         BEGIN
-	                                        INSERT INTO [dbo].[CurrencyValue] ([Day],[Source],[Target],[ValueSource],[ValueType],[Value])
+	                                        INSERT INTO [CurrencyValue] ([Day],[Source],[Target],[ValueSource],[ValueType],[Value])
 	                                        VALUES (@day,@source,@target,@valueSource,@valueType,@value)
                                         END";
 
@@ -143,7 +151,7 @@ namespace Para.Server.Business.Strategy
                     cmd.Connection = conn;
                     cmd.CommandType = CommandType.Text;
                     cmd.CommandText = @"IF NOT EXISTS (SELECT Value
-			                                           FROM [dbo].[CurrencyValue] 
+			                                           FROM [CurrencyValue] 
                                                        WHERE [Day] = @day
 				 	                                         AND [Source] = @source
 				 	                                         AND [Target] = @target
@@ -151,7 +159,7 @@ namespace Para.Server.Business.Strategy
 				  	                                         AND [ValueType] = @valueType)
 	                                        BEGIN
 		                                        SELECT TOP 1 Value
-		                                        FROM [dbo].[CurrencyValue] 
+		                                        FROM [CurrencyValue] 
 		                                        WHERE [Source] = @source
 				                                        AND [Target] = @target
 				                                        AND [ValueSource] = @valueSource
@@ -161,7 +169,7 @@ namespace Para.Server.Business.Strategy
                                         ELSE
 	                                        BEGIN
 		                                        SELECT Value
-		                                        FROM [dbo].[CurrencyValue] 
+		                                        FROM [CurrencyValue] 
 		                                        WHERE [Day] = @day
 				                                        AND [Source] = @source
 				                                        AND [Target] = @target

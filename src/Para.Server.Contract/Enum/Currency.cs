@@ -5,6 +5,7 @@
         TL,
         USD,
         EUR,
-        GBP
+        GBP,
+        JPY
     }
 }

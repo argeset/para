@@ -45,7 +45,7 @@ namespace Para.Client.Web.Controllers
             SetDay(gun, argument);
             var response = _paraService.GetValue(argument);
 
-            return Json(new { response.Value, Message = response.Message.ToString() }, JsonRequestBehavior.AllowGet);
+            return Json(new { response.Value, Message = response.Message.ToString(), Date = argument.Time }, JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet]
@@ -101,24 +101,7 @@ namespace Para.Client.Web.Controllers
 
             var response = _paraService.ConvertValue(argument);
 
-            return Json(new { response.Value, Message = response.Message.ToString() }, JsonRequestBehavior.AllowGet);
-        }
-
-        private static void SetDay(string gun, BaseArgument argument)
-        {
-            argument.Time = DateTime.Today.ToString("yyyyMMdd");
-
-            if (string.IsNullOrWhiteSpace(gun)) return;
-
-            try
-            {
-                var year = int.Parse(gun.Substring(0, 4));
-                var month = int.Parse(gun.Substring(4, 2));
-                var day = int.Parse(gun.Substring(6, 2));
-
-                argument.Time = new DateTime(year, month, day).ToString("yyyyMMdd");
-            }
-            catch { }
-        }
+            return Json(new { response.Value, Message = response.Message.ToString(), Date = argument.Time }, JsonRequestBehavior.AllowGet);
+        }       
     }
 }
