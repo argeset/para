@@ -10,7 +10,7 @@ using Para.Server.Contract.Response;
 namespace Para.Server.Business.Test
 {
     [TestFixture]
-    public class ParaServiseTests
+    public class ParaServiceTests
     {
         ParaService _service;
 

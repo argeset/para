@@ -27,13 +27,13 @@ namespace Para.Server.Business.Strategy
             {
                 response.Message = ResponseMessage.SystemError;
 
-                var logger = LogManager.GetLogger("TCMBStrategy");
+                var logger = GetTCMBLogger();
                 logger.Error(ex);
             }
 
             return response;
         }
-
+        
         public override Response ConvertValue(string day, Currency source, Currency target, CurrencyValueType type, decimal? amount)
         {
             var response = new Response();
@@ -47,7 +47,7 @@ namespace Para.Server.Business.Strategy
             {
                 response.Message = ResponseMessage.SystemError;
 
-                var logger = LogManager.GetLogger("TCMBStrategy");
+                var logger = GetTCMBLogger();
                 logger.Error(ex);
             }
 
@@ -56,7 +56,7 @@ namespace Para.Server.Business.Strategy
 
         public override void SaveValue()
         {
-            var logger = LogManager.GetLogger("TCMBStrategy");
+            var logger = GetTCMBLogger();
 
             try
             {
@@ -87,10 +87,10 @@ namespace Para.Server.Business.Strategy
 
                     if (code == Currency.JPY.ToString())
                     {
-                        banknote = banknote / 100;
-                        banknoteBuying = banknoteBuying / 100;
-                        forex = forex / 100;
-                        forexBuying = forexBuying / 100;
+                        banknote = Convert.ToDecimal((banknote / 100).ToString("##.####"));
+                        banknoteBuying = Convert.ToDecimal((banknoteBuying / 100).ToString("##.####"));
+                        forex = Convert.ToDecimal((forex / 100).ToString("##.####"));
+                        forexBuying = Convert.ToDecimal((forexBuying / 100).ToString("##.####"));
                     }
 
                     SaveValueDbWork(day, code, banknote, CurrencyValueType.Banknote);
@@ -127,6 +127,9 @@ namespace Para.Server.Business.Strategy
                                         BEGIN
 	                                        INSERT INTO [CurrencyValue] ([Day],[Source],[Target],[ValueSource],[ValueType],[Value])
 	                                        VALUES (@day,@source,@target,@valueSource,@valueType,@value)
+                                            
+                                            INSERT INTO [CurrencyValue] ([Day],[Source],[Target],[ValueSource],[ValueType],[Value])
+                                            VALUES (@day,@target,@source,@valueSource,@valueType,1/@value)
                                         END";
 
                     cmd.Parameters.AddWithValue("@day", day);
@@ -198,6 +201,12 @@ namespace Para.Server.Business.Strategy
             var xml = new XmlDocument();
             xml.LoadXml(data);
             return xml;
+        }
+        
+        private static Logger GetTCMBLogger()
+        {
+            var logger = LogManager.GetLogger("TCMBStrategy");
+            return logger;
         }
     }
 }

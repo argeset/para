@@ -6,6 +6,7 @@
         USD,
         EUR,
         GBP,
-        JPY
+        JPY,
+        CHF
     }
 }
