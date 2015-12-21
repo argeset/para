@@ -33,10 +33,19 @@ namespace Para.Server.Business.Strategy
 
             return response;
         }
-        
+
         public override Response ConvertValue(string day, Currency source, Currency target, CurrencyValueType type, decimal? amount)
         {
+
+            GetTCMBLogger().Info(string.Format("{0}-{1}-{2}-{3}-{4}", day, source, target, type, amount));
+
             var response = new Response();
+
+            if (source == target)
+            {
+                response.Value = amount ?? 0;
+                return response;
+            }
 
             try
             {
@@ -146,6 +155,10 @@ namespace Para.Server.Business.Strategy
         }
         private static decimal GetValueDbWork(string day, Currency source, Currency target, CurrencyValueType type)
         {
+
+            GetTCMBLogger().Info(string.Format("{0}-{1}-{2}-{3}", day, source, target, type));
+            if (source == target) return 1;
+
             object result;
             using (var conn = new SqlConnection(ConfigurationManager.ConnectionStrings["Para"].ConnectionString))
             {
@@ -202,7 +215,7 @@ namespace Para.Server.Business.Strategy
             xml.LoadXml(data);
             return xml;
         }
-        
+
         private static Logger GetTCMBLogger()
         {
             var logger = LogManager.GetLogger("TCMBStrategy");

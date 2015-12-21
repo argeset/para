@@ -24,12 +24,15 @@ namespace Para.Client.Web.Controllers
         }
 
         [HttpGet]
-        public JsonResult Deger(string hedef = "USD", string tur = "efektif", string gun = "")
+        public JsonResult Deger(string kaynak = "USD", string hedef = "USD", string tur = "efektif", string gun = "")
         {
+            Currency source;
+            if (!Enum.TryParse(kaynak, out source)) return Json("hatalı para birimi hedefi > " + hedef, JsonRequestBehavior.AllowGet);
+
             Currency target;
             if (!Enum.TryParse(hedef, out target)) return Json("hatalı para birimi hedefi > " + hedef, JsonRequestBehavior.AllowGet);
 
-            var argument = new GetValueArgument { Target = target };
+            var argument = new GetValueArgument { Source = source, Target = target, };
             switch (tur)
             {
                 case "efektif":
@@ -49,12 +52,16 @@ namespace Para.Client.Web.Controllers
         }
 
         [HttpGet]
-        public string SadeceDeger(string hedef = "USD", string tur = "efektif", string gun = "")
+        public string SadeceDeger(string kaynak = "USD", string hedef = "USD", string tur = "efektif", string gun = "")
         {
+
+            Currency source;
+            if (!Enum.TryParse(kaynak, out source)) return "hatalı para birimi hedefi > " + kaynak;
+
             Currency target;
             if (!Enum.TryParse(hedef, out target)) return "hatalı para birimi hedefi > " + hedef;
 
-            var argument = new GetValueArgument { Target = target };
+            var argument = new GetValueArgument { Source = source, Target = target, };
             switch (tur)
             {
                 case "efektif":
@@ -74,17 +81,20 @@ namespace Para.Client.Web.Controllers
         }
 
         [HttpGet]
-        public JsonResult Cevrim(decimal? tutar, string hedef = "USD", string tur = "efektif", string gun = "")
+        public JsonResult Cevrim(decimal? tutar, string kaynak = "USD", string hedef = "USD", string tur = "efektif", string gun = "")
         {
             if (tutar == null)
             {
                 return Json("lütfen tutar belirtiniz", JsonRequestBehavior.AllowGet);
             }
 
+            Currency source;
+            if (!Enum.TryParse(kaynak, out source)) return Json("hatalı para birimi hedefi > " + hedef, JsonRequestBehavior.AllowGet);
+
             Currency target;
             if (!Enum.TryParse(hedef, out target)) return Json("hatalı para birimi hedefi > " + hedef, JsonRequestBehavior.AllowGet);
 
-            var argument = new ConvertValueArgument { Target = target, Amount = tutar };
+            var argument = new ConvertValueArgument { Source = source, Target = target, Amount = tutar };
             switch (tur)
             {
                 case "efektif":
@@ -102,6 +112,6 @@ namespace Para.Client.Web.Controllers
             var response = _paraService.ConvertValue(argument);
 
             return Json(new { response.Value, Message = response.Message.ToString(), Date = argument.Time }, JsonRequestBehavior.AllowGet);
-        }       
+        }
     }
 }
