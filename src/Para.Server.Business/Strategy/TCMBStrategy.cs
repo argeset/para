@@ -1,13 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Globalization;
+using System.Linq;
 using System.Net;
 using System.Xml;
-
 using NLog;
-
+using Para.Server.Contract.Argument;
 using Para.Server.Contract.Enum;
 using Para.Server.Contract.Response;
 
@@ -65,7 +66,43 @@ namespace Para.Server.Business.Strategy
 
         public override void SaveValue()
         {
+            var values = GetCurrencyValues();
+            var dic = PrepareCrossRate(values);
+
+            foreach (var currencyValue in dic)
+            {
+                SaveValueDbWork(currencyValue.Value);
+            }
+        }
+
+        private static Dictionary<string, CurrencyValue> PrepareCrossRate(List<CurrencyValue> values)
+        {
+            var crossRate = new Dictionary<string, CurrencyValue>();
+
+            foreach (var currencyValue in values)
+            {
+                foreach (var value in values.Where(value => currencyValue.ValueType == value.ValueType))
+                {
+                    var key = string.Format("{0}-{1}-{2}", currencyValue.Source, value.Source, value.ValueType);
+
+                    crossRate[key] = new CurrencyValue
+                    {
+                        Day = value.Day,
+                        Source = currencyValue.Source,
+                        Target = value.Source,
+                        ValueSoruce = value.ValueSoruce,
+                        ValueType = value.ValueType,
+                        Value = Convert.ToDecimal((currencyValue.Value / value.Value).ToString("##.####"))
+                    };
+                }
+            }
+            return crossRate;
+        }
+
+        private static List<CurrencyValue> GetCurrencyValues()
+        {
             var logger = GetTCMBLogger();
+            var currencyValues = new List<CurrencyValue>();
 
             try
             {
@@ -76,6 +113,8 @@ namespace Para.Server.Business.Strategy
                 var allCurrenyInfos = xml.SelectNodes("/Tarih_Date/Currency");
                 var count = allCurrenyInfos.Count;
 
+                var valsUnit = xml.SelectNodes("/Tarih_Date/Currency/Unit");
+
                 var valsBanknote = xml.SelectNodes("/Tarih_Date/Currency/BanknoteSelling");
                 var valsBanknoteBuying = xml.SelectNodes("/Tarih_Date/Currency/BanknoteBuying");
                 var valsForex = xml.SelectNodes("/Tarih_Date/Currency/ForexSelling");
@@ -83,41 +122,115 @@ namespace Para.Server.Business.Strategy
 
                 var codes = xml.SelectNodes("/Tarih_Date/Currency/@Kod");
 
+                PrepareCurrencyValue(currencyValues, day);
+
                 for (var i = 0; i < count; i++)
                 {
                     Currency currency;
                     var code = codes[i].InnerText;
                     if (!Enum.TryParse(code, out currency)) continue;
 
-                    var banknote = Convert.ToDecimal(valsBanknote[i].InnerText, CultureInfo.InvariantCulture);
-                    var banknoteBuying = Convert.ToDecimal(valsBanknoteBuying[i].InnerText, CultureInfo.InvariantCulture);
-                    var forex = Convert.ToDecimal(valsForex[i].InnerText, CultureInfo.InvariantCulture);
-                    var forexBuying = Convert.ToDecimal(valsForexBuying[i].InnerText, CultureInfo.InvariantCulture);
-
-                    if (code == Currency.JPY.ToString())
+                    currencyValues.Add(new CurrencyValue
                     {
-                        banknote = Convert.ToDecimal((banknote / 100).ToString("##.####"));
-                        banknoteBuying = Convert.ToDecimal((banknoteBuying / 100).ToString("##.####"));
-                        forex = Convert.ToDecimal((forex / 100).ToString("##.####"));
-                        forexBuying = Convert.ToDecimal((forexBuying / 100).ToString("##.####"));
-                    }
+                        Day = day,
+                        Source = currency,
+                        Target = Currency.TL,
+                        ValueSoruce = CurrencyValueSource.TCMB,
+                        ValueType = CurrencyValueType.Banknote,
+                        Value = GetValueFormated(valsBanknote[i].InnerText, valsUnit[i].InnerText)
+                    });
 
-                    SaveValueDbWork(day, code, banknote, CurrencyValueType.Banknote);
-                    SaveValueDbWork(day, code, banknoteBuying, CurrencyValueType.BanknoteBuying);
-                    SaveValueDbWork(day, code, forex, CurrencyValueType.Forex);
-                    SaveValueDbWork(day, code, forexBuying, CurrencyValueType.ForexBuying);
+
+                    currencyValues.Add(new CurrencyValue
+                    {
+                        Day = day,
+                        Source = currency,
+                        Target = Currency.TL,
+                        ValueSoruce = CurrencyValueSource.TCMB,
+                        ValueType = CurrencyValueType.BanknoteBuying,
+                        Value = GetValueFormated(valsBanknoteBuying[i].InnerText, valsUnit[i].InnerText)
+                    });
+
+                    currencyValues.Add(new CurrencyValue
+                    {
+                        Day = day,
+                        Source = currency,
+                        Target = Currency.TL,
+                        ValueSoruce = CurrencyValueSource.TCMB,
+                        ValueType = CurrencyValueType.Forex,
+                        Value = GetValueFormated(valsForex[i].InnerText, valsUnit[i].InnerText)
+                    });
+
+                    currencyValues.Add(new CurrencyValue
+                    {
+                        Day = day,
+                        Source = currency,
+                        Target = Currency.TL,
+                        ValueSoruce = CurrencyValueSource.TCMB,
+                        ValueType = CurrencyValueType.ForexBuying,
+                        Value = GetValueFormated(valsForexBuying[i].InnerText, valsUnit[i].InnerText)
+                    });
+
                 }
-
-                logger.Info(string.Format("values saved for TCMB Strategy {0}", DateTime.Now.ToString("f")));
             }
             catch (Exception ex)
             {
                 logger.Error(ex);
                 throw;
             }
+
+            return currencyValues;
         }
 
-        private static void SaveValueDbWork(string day, string code, decimal value, CurrencyValueType valueType)
+        private static void PrepareCurrencyValue(List<CurrencyValue> currencyValues, string day)
+        {
+            currencyValues.Add(new CurrencyValue
+            {
+                Day = day,
+                Source = Currency.TL,
+                Target = Currency.TL,
+                ValueSoruce = CurrencyValueSource.TCMB,
+                ValueType = CurrencyValueType.Banknote,
+                Value = 1
+            });
+
+            currencyValues.Add(new CurrencyValue
+            {
+                Day = day,
+                Source = Currency.TL,
+                Target = Currency.TL,
+                ValueSoruce = CurrencyValueSource.TCMB,
+                ValueType = CurrencyValueType.BanknoteBuying,
+                Value = 1
+            });
+
+            currencyValues.Add(new CurrencyValue
+            {
+                Day = day,
+                Source = Currency.TL,
+                Target = Currency.TL,
+                ValueSoruce = CurrencyValueSource.TCMB,
+                ValueType = CurrencyValueType.Forex,
+                Value = 1
+            });
+
+            currencyValues.Add(new CurrencyValue
+            {
+                Day = day,
+                Source = Currency.TL,
+                Target = Currency.TL,
+                ValueSoruce = CurrencyValueSource.TCMB,
+                ValueType = CurrencyValueType.ForexBuying,
+                Value = 1
+            });
+        }
+
+        private static decimal GetValueFormated(string value, string unit)
+        {
+            return Convert.ToDecimal((Convert.ToDecimal(value, CultureInfo.InvariantCulture) / Convert.ToDecimal(unit, CultureInfo.InvariantCulture)).ToString("##.####"));
+        }
+
+        private static void SaveValueDbWork(CurrencyValue value)
         {
             using (var conn = new SqlConnection(ConfigurationManager.ConnectionStrings["Para"].ConnectionString))
             {
@@ -135,27 +248,24 @@ namespace Para.Server.Business.Strategy
 					                                         AND [Value] = @value)
                                         BEGIN
 	                                        INSERT INTO [CurrencyValue] ([Day],[Source],[Target],[ValueSource],[ValueType],[Value])
-	                                        VALUES (@day,@source,@target,@valueSource,@valueType,@value)
-                                            
-                                            INSERT INTO [CurrencyValue] ([Day],[Source],[Target],[ValueSource],[ValueType],[Value])
-                                            VALUES (@day,@target,@source,@valueSource,@valueType,1/@value)
+	                                        VALUES (@day,@source,@target,@valueSource,@valueType,@value)                                            
                                         END";
 
-                    cmd.Parameters.AddWithValue("@day", day);
-                    cmd.Parameters.AddWithValue("@source", Currency.TL.ToString());
-                    cmd.Parameters.AddWithValue("@target", code);
-                    cmd.Parameters.AddWithValue("@valueSource", CurrencyValueSource.TCMB.ToString());
-                    cmd.Parameters.AddWithValue("@valueType", valueType.ToString());
-                    cmd.Parameters.AddWithValue("@value", value);
+                    cmd.Parameters.AddWithValue("@day", value.Day);
+                    cmd.Parameters.AddWithValue("@source", value.Source.ToString());
+                    cmd.Parameters.AddWithValue("@target", value.Target.ToString());
+                    cmd.Parameters.AddWithValue("@valueSource", value.ValueSoruce.ToString());
+                    cmd.Parameters.AddWithValue("@valueType", value.ValueType.ToString());
+                    cmd.Parameters.AddWithValue("@value", value.Value);
 
                     conn.Open();
                     cmd.ExecuteNonQuery();
                 }
             }
         }
+
         private static decimal GetValueDbWork(string day, Currency source, Currency target, CurrencyValueType type)
         {
-
             GetTCMBLogger().Info(string.Format("{0}-{1}-{2}-{3}", day, source, target, type));
             if (source == target) return 1;
 

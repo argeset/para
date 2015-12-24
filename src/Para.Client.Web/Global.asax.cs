@@ -32,6 +32,7 @@ namespace Para.Client.Web
         public static void RegisterRoutes(RouteCollection routes)
         {
             routes.MapRoute("SadeceDeger", "Deger", new { controller = "Data", action = "SadeceDeger" }, new[] { "Para.Client.Web.Controllers" });
+            routes.MapRoute("Cevrim", "Cevrim", new { controller = "Data", action = "Cevrim" }, new[] { "Para.Client.Web.Controllers" });
             routes.MapRoute("Default", "{controller}/{action}/{id}", new { controller = "Data", action = "Index", id = UrlParameter.Optional }, new[] { "Para.Client.Web.Controllers" });
         }
 

@@ -37,6 +37,7 @@
   <ItemGroup>
     <Compile Include="Argument\BaseArgument.cs" />
     <Compile Include="Argument\ConvertValueArgument.cs" />
+    <Compile Include="Argument\CurrencyValue.cs" />
     <Compile Include="Argument\GetValueArgument.cs" />
     <Compile Include="Enum\Currency.cs" />
     <Compile Include="Enum\CurrencyValueSource.cs" />
