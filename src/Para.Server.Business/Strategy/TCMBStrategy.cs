@@ -134,7 +134,7 @@ namespace Para.Server.Business.Strategy
                     {
                         Day = day,
                         Source = currency,
-                        Target = Currency.TL,
+                        Target = Currency.TRY,
                         ValueSoruce = CurrencyValueSource.TCMB,
                         ValueType = CurrencyValueType.Banknote,
                         Value = GetValueFormated(valsBanknote[i].InnerText, valsUnit[i].InnerText)
@@ -145,7 +145,7 @@ namespace Para.Server.Business.Strategy
                     {
                         Day = day,
                         Source = currency,
-                        Target = Currency.TL,
+                        Target = Currency.TRY,
                         ValueSoruce = CurrencyValueSource.TCMB,
                         ValueType = CurrencyValueType.BanknoteBuying,
                         Value = GetValueFormated(valsBanknoteBuying[i].InnerText, valsUnit[i].InnerText)
@@ -155,7 +155,7 @@ namespace Para.Server.Business.Strategy
                     {
                         Day = day,
                         Source = currency,
-                        Target = Currency.TL,
+                        Target = Currency.TRY,
                         ValueSoruce = CurrencyValueSource.TCMB,
                         ValueType = CurrencyValueType.Forex,
                         Value = GetValueFormated(valsForex[i].InnerText, valsUnit[i].InnerText)
@@ -165,7 +165,7 @@ namespace Para.Server.Business.Strategy
                     {
                         Day = day,
                         Source = currency,
-                        Target = Currency.TL,
+                        Target = Currency.TRY,
                         ValueSoruce = CurrencyValueSource.TCMB,
                         ValueType = CurrencyValueType.ForexBuying,
                         Value = GetValueFormated(valsForexBuying[i].InnerText, valsUnit[i].InnerText)
@@ -187,8 +187,8 @@ namespace Para.Server.Business.Strategy
             currencyValues.Add(new CurrencyValue
             {
                 Day = day,
-                Source = Currency.TL,
-                Target = Currency.TL,
+                Source = Currency.TRY,
+                Target = Currency.TRY,
                 ValueSoruce = CurrencyValueSource.TCMB,
                 ValueType = CurrencyValueType.Banknote,
                 Value = 1
@@ -197,8 +197,8 @@ namespace Para.Server.Business.Strategy
             currencyValues.Add(new CurrencyValue
             {
                 Day = day,
-                Source = Currency.TL,
-                Target = Currency.TL,
+                Source = Currency.TRY,
+                Target = Currency.TRY,
                 ValueSoruce = CurrencyValueSource.TCMB,
                 ValueType = CurrencyValueType.BanknoteBuying,
                 Value = 1
@@ -207,8 +207,8 @@ namespace Para.Server.Business.Strategy
             currencyValues.Add(new CurrencyValue
             {
                 Day = day,
-                Source = Currency.TL,
-                Target = Currency.TL,
+                Source = Currency.TRY,
+                Target = Currency.TRY,
                 ValueSoruce = CurrencyValueSource.TCMB,
                 ValueType = CurrencyValueType.Forex,
                 Value = 1
@@ -217,8 +217,8 @@ namespace Para.Server.Business.Strategy
             currencyValues.Add(new CurrencyValue
             {
                 Day = day,
-                Source = Currency.TL,
-                Target = Currency.TL,
+                Source = Currency.TRY,
+                Target = Currency.TRY,
                 ValueSoruce = CurrencyValueSource.TCMB,
                 ValueType = CurrencyValueType.ForexBuying,
                 Value = 1

@@ -8,7 +8,7 @@ namespace Para.Server.Contract.Argument
         {
             ValueSource = CurrencyValueSource.TCMB;
             Type = CurrencyValueType.Banknote;
-            Source = Currency.TL;
+            Source = Currency.TRY;
             Target = Currency.USD;
             Time = GetTodayKey();
         }

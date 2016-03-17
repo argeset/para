@@ -56,7 +56,7 @@ namespace Para.Client.Web
                                         .AsWcfClient(new DefaultClientModel
                                         {
                                             Endpoint = WcfEndpoint.BoundTo(netTcpBinding)
-                                                                  .At(string.Format("net.tcp://localhost:{0}/ParaService", ConfigurationManager.AppSettings["TcpPort"]))
+                                                                  .At(string.Format("{0}{1}", ConfigurationManager.AppSettings["ParaServiceBaseAddress"], "ParaService"))
                                         }).LifestylePerWebRequest());
 
             container.Register(Classes.FromThisAssembly()

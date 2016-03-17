@@ -78,7 +78,7 @@ namespace Para.Server.Business.Test
 
         private static void AssertDefaultArgumentValues(BaseArgument argument)
         {
-            Assert.AreEqual(argument.Source, Currency.TL);
+            Assert.AreEqual(argument.Source, Currency.TRY);
             Assert.AreEqual(argument.Target, Currency.USD);
             Assert.AreEqual(argument.Type, CurrencyValueType.Banknote);
             Assert.AreEqual(argument.Time, DateTime.Today.ToString("yyyyMMdd"));

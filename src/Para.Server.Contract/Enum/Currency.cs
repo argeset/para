@@ -2,7 +2,7 @@
 {
     public enum Currency
     {
-        TL,
+        TRY,
         USD,
         EUR,
         GBP,
