@@ -38,9 +38,9 @@ namespace Para.Server.Host.Configuration.Helpers
             }
         }
 
-        public static int TcpPort
+        public static string BaseAddress
         {
-            get { return Convert.ToInt32(ConfigurationManager.AppSettings["TcpPort"]); }
+            get { return ConfigurationManager.AppSettings["ParaServiceBaseAddress"]; }
         }
     }
 }

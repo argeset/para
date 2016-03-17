@@ -16,7 +16,7 @@ namespace Para.Server.Host.Configuration
             container.Register(Component.For<IParaService>().ImplementedBy<ParaService>()
                                .Interceptors<ExceptionInterceptor>().LifeStyle.Singleton
                                .AsWcfService(new DefaultServiceModel().AddEndpoints(WcfEndpoint.BoundTo(ConfigurationHelper.NetTcpBinding)
-                                                                      .At(string.Format("net.tcp://localhost:{0}/ParaService", ConfigurationHelper.TcpPort)))
+                                                                      .At(string.Format("{0}{1}", ConfigurationHelper.BaseAddress, "ParaService")))
                                                                       .PublishMetadata()));
         }
     }

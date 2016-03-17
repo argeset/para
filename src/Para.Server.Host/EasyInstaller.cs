@@ -13,7 +13,7 @@ namespace Para.Server.Host
 
             var serviceProcess = new ServiceProcessInstaller { Account = ServiceAccount.LocalSystem };
 
-            const string serviceName = "Argeset SetCrm Para Service";
+            const string serviceName = "SetXrm Para Service";
             var serviceInstaller = new ServiceInstaller
             {
                 ServiceName = serviceName.Replace(" ", ""),
