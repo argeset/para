@@ -227,7 +227,7 @@ namespace Para.Server.Business.Strategy
 
         private static decimal GetValueFormated(string value, string unit)
         {
-            return Convert.ToDecimal((Convert.ToDecimal(value, CultureInfo.InvariantCulture) / Convert.ToDecimal(unit, CultureInfo.InvariantCulture)).ToString("##.####"));
+            return Convert.ToDecimal((Convert.ToDecimal(value, CultureInfo.InvariantCulture) / Convert.ToDecimal(unit, CultureInfo.InvariantCulture)).ToString("##.########"));
         }
 
         private static void SaveValueDbWork(CurrencyValue value)
