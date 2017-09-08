@@ -1,7 +1,8 @@
 ﻿using System;
-
+using System.Collections.Generic;
 using Para.Server.Business.Strategy;
 using Para.Server.Contract.Argument;
+using Para.Server.Contract.Enum;
 using Para.Server.Contract.Response;
 
 namespace Para.Server.Business.Manager
@@ -19,6 +20,13 @@ namespace Para.Server.Business.Manager
         {
             var strategy = BaseStrategy.Strategies[argument.ValueSource];
             var response = strategy.GetValue(argument.Time, argument.Source, argument.Target, argument.Type);
+            return response;
+        }
+
+        public List<ExchangeRate> GetExchangeRate(string day)
+        {
+            var strategy = BaseStrategy.Strategies[CurrencyValueSource.TCMB];
+            var response = strategy.GetValuesDbWork(day);
             return response;
         }
 

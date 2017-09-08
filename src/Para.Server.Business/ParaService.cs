@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Timers;
 
@@ -33,6 +34,12 @@ namespace Para.Server.Business
         public Response ConvertValue(ConvertValueArgument argument)
         {
             var response = _paraManager.ConvertValue(argument);
+            return response;
+        }
+
+        public List<ExchangeRate> GetExchangeRate(string day)
+        {
+            var response = _paraManager.GetExchangeRate(day);
             return response;
         }
 

@@ -113,5 +113,15 @@ namespace Para.Client.Web.Controllers
 
             return Json(new { response.Value, Message = response.Message.ToString(), Date = argument.Time }, JsonRequestBehavior.AllowGet);
         }
+
+        [HttpGet]
+        public JsonResult ExchangeRate(string day)
+        {
+            if (string.IsNullOrEmpty(day)) day = DateTime.Today.AddDays(-1).ToString("yyyyMMdd");
+
+            var response = _paraService.GetExchangeRate(day);
+
+            return Json(response, JsonRequestBehavior.AllowGet);
+        }
     }
 }

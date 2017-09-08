@@ -75,6 +75,53 @@ namespace Para.Server.Business.Strategy
             }
         }
 
+        public override List<ExchangeRate> GetValuesDbWork(string day)
+        {
+            var exchangeRates = new List<ExchangeRate>();
+            using (var conn = new SqlConnection(ConfigurationManager.ConnectionStrings["Para"].ConnectionString))
+            {
+                using (var cmd = new SqlCommand())
+                {
+                    cmd.Connection = conn;
+                    cmd.CommandType = CommandType.Text;
+                    cmd.CommandText = @"SELECT DISTINCT CV.Day,CV.Source,CV.Target,
+                                        (SELECT TOP 1 CVBS.Value FROM [CurrencyValue] as CVBS WHERE CVBS.[Day] =@day and CVBS.Source=CV.Source and CVBS.Target = CV.Target and CVBS.ValueType='Banknote' ) as BanknoteSelling,
+                                        (SELECT TOP 1 CVBS.Value FROM [CurrencyValue] as CVBS WHERE CVBS.[Day] =@day and CVBS.Source=CV.Source and CVBS.Target = CV.Target and CVBS.ValueType='BanknoteBuying') as BanknoteBuying,
+                                        (SELECT TOP 1 CVBS.Value FROM [CurrencyValue] as CVBS WHERE CVBS.[Day] =@day and CVBS.Source=CV.Source and CVBS.Target = CV.Target and CVBS.ValueType='Forex') as ForexSelling,
+                                        (SELECT TOP 1 CVBS.Value FROM [CurrencyValue] as CVBS WHERE CVBS.[Day] =@day and CVBS.Source=CV.Source and CVBS.Target = CV.Target and CVBS.ValueType='ForexBuying') as ForexBuying
+                                        from [CurrencyValue] as CV WHERE [Day] = @day and Source != Target AND [ValueSource] =  @valueSource order by CV.Source";
+
+                    cmd.Parameters.AddWithValue("@day", day);
+                    cmd.Parameters.AddWithValue("@valueSource", CurrencyValueSource.TCMB.ToString());
+                    conn.Open();
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        var stringy = day.Substring(0, 4);
+                        var stringm = day.Substring(4, 2);
+                        var stringd = day.Substring(6, 2);
+                        var stringdate = $"{stringd}.{stringm}.{stringy}";
+                        while (reader.Read())
+                        {
+                            var exchangeRate = new ExchangeRate
+                            {
+                                Source = reader[1].ToString(),
+                                Target = reader[2].ToString(),
+                                CurrencyCode = $"{reader[1]} / {reader[2]}",
+                                BankNoteSelling = reader[3].ToString(),
+                                BankNoteBuying = reader[4].ToString(),
+                                ForexSelling = reader[5].ToString(),
+                                ForexBuying = reader[6].ToString(),
+                                CurrencyDate = stringdate
+                            };
+                            exchangeRates.Add(exchangeRate);
+                        }
+                    }
+                }
+            }
+
+            return exchangeRates;
+        }
+
         private static Dictionary<string, CurrencyValue> PrepareCrossRate(List<CurrencyValue> values)
         {
             var crossRate = new Dictionary<string, CurrencyValue>();
