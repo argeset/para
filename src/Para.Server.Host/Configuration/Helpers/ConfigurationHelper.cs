@@ -42,5 +42,10 @@ namespace Para.Server.Host.Configuration.Helpers
         {
             get { return ConfigurationManager.AppSettings["ParaServiceBaseAddress"]; }
         }
+
+        public static string TCBMBaseAddress
+        {
+            get { return ConfigurationManager.AppSettings["TCBMBaseAddress"]; }
+        }
     }
 }
