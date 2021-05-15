@@ -72,10 +72,17 @@ namespace Para.Client.Web.Controllers
             switch (tur)
             {
                 case "efektif":
+                case "banknote":
                     argument.Type = CurrencyValueType.Banknote;
                     break;
                 case "forex":
                     argument.Type = CurrencyValueType.Forex;
+                    break;
+                case "banknotebuying":
+                    argument.Type = CurrencyValueType.BanknoteBuying;
+                    break;
+                case "forexbuying":
+                    argument.Type = CurrencyValueType.ForexBuying;
                     break;
                 default:
                     return "hatalı tür > " + tur;
