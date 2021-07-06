@@ -8,6 +8,7 @@ using System.Linq;
 using System.Net;
 using System.Xml;
 using NLog;
+using Para.Server.Business.Helpers;
 using Para.Server.Contract.Argument;
 using Para.Server.Contract.Enum;
 using Para.Server.Contract.Response;
@@ -366,14 +367,26 @@ namespace Para.Server.Business.Strategy
 
         private static XmlDocument GetSourceXml()
         {
-            var client = new WebClient();
-            //var data = client.DownloadString("http://172.29.120.155:8080/KurlarGateway");
-            //var data = client.DownloadString("https://www.tcmb.gov.tr/kurlar/today.xml");
-           // var data = client.DownloadString("http://192.168.10.205:8080/KurlarGateway");
-            var data = client.DownloadString(ConfigurationManager.AppSettings["TCBMBaseAddress"]);
-            var xml = new XmlDocument();
-            xml.LoadXml(data);
-            return xml;
+            if (ConfigHelper.IsProxy)
+            {
+                var proxy = new WebProxy($"{ConfigHelper.Proxy}", ConfigHelper.ProxyPort);
+                var client = new WebClient { Proxy = proxy, UseDefaultCredentials = true };
+                var data = client.DownloadString(ConfigurationManager.AppSettings["TCBMBaseAddress"]);
+                var xml = new XmlDocument();
+                xml.LoadXml(data);
+                return xml;
+            }
+            else
+            {
+                var client = new WebClient();
+                //var data = client.DownloadString("http://172.29.120.155:8080/KurlarGateway");
+                //var data = client.DownloadString("https://www.tcmb.gov.tr/kurlar/today.xml");
+                // var data = client.DownloadString("http://192.168.10.205:8080/KurlarGateway");
+                var data = client.DownloadString(ConfigurationManager.AppSettings["TCBMBaseAddress"]);
+                var xml = new XmlDocument();
+                xml.LoadXml(data);
+                return xml;
+            }
         }
 
         private static Logger GetTCMBLogger()
